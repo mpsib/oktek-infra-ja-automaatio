@@ -6,24 +6,30 @@
 import json
 import urllib.request
 
-with urllib.request.urlopen('https://raw.githubusercontent.com/theikkila/postinumerot/master/postcode_map_light.json') as response:
-   file = response.read()
+def haeAineisto():
+    with urllib.request.urlopen('https://raw.githubusercontent.com/theikkila/postinumerot/master/postcode_map_light.json') as response:
+        file = response.read()
+    return json.loads(file)
 
-aineisto = json.loads(file)
+def haePostinumerot(postitoimipaikka, aineisto):
+    tulokset = []
 
-tulokset = []
-postitoimipaikka = input('Kirjoita postitoimipaikka: ').upper()
+    for postinumero, toimipaikka in aineisto.items():
+        if toimipaikka.replace(' ', '') == postitoimipaikka.upper().replace(' ', ''):
+            tulokset.append(postinumero)
 
-for postinumero, toimipaikka in aineisto.items():
-    if toimipaikka == postitoimipaikka:
-        tulokset.append(postinumero)
-
-
-if len(tulokset) > 0:
     tulokset.sort()
-    response = 'Postinumerot: '
-    for postinumero in tulokset:
-        response = response + postinumero + ', '
-    print(response[:-2])
-else:
-    print('Tuntematon postitoimipaikka')
+    return tulokset
+
+def tulostaTulokset(tulokset):
+    if len(tulokset) > 0:
+        response = 'Postinumerot: '
+        for postinumero in tulokset:
+            response = response + postinumero + ', '
+        return response[:-2]
+    else:
+        return 'Tuntematon postitoimipaikka'
+
+if __name__ == '__main__':
+    postitoimipaikka = input('Kirjoita postitoimipaikka: ')
+    print(tulostaTulokset(haePostinumerot(postitoimipaikka, haeAineisto())))
